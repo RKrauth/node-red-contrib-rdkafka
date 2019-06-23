@@ -1,27 +1,32 @@
-node-red-contrib-rdkafka
-========================
+node-red-contrib-rdkafka-secure
+===============================
 
 Node-RED (http://nodered.org) nodes for publish/subscribe messaging using the new Apache Kafka Consumer/Producer API and without requiring direct communications with Zookeeper. Based on the the high performance librdkafka Apache Kafka C/C++ library (https://github.com/edenhill/librdkafka).
+
+This module is a fork of Hans Jespersen's [node-red-contrib-rdkafka](https://github.com/hjespers/node-red-contrib-rdkafka) module, with only minor additions to enable making secured authenticated connections to Kafka brokers.
 
 
 # Features
 
 * Up to date support for Apache Kafka 0.9, 0.10, and 0.11 including Confluent version 2.x and 3.x
-* High performance through use of librdkafka C/C++ library (see https://github.com/edenhill/librdkafka) 
+* High performance through use of librdkafka C/C++ library (see https://github.com/edenhill/librdkafka)
 * Up to date feature set from use of node-rdkafka node.js client (see https://github.com/Blizzard/node-rdkafka)
 * Tested on Linux, macOS, and Raspberry Pi / Raspbian Jessie
 * Supports dynamic topic selection via incoming msg.topic value
 * Supports dynamic partition selection via incoming msg.partition value
 * Supports event time timestamps (with Kafka 0.10+) via msg/timestamp value
-* Uses `auto.offset.commit` to commit consumers offsets 
+* Uses `auto.offset.commit` to commit consumers offsets
+* Supports providing credentials and/or certificates for making secured connections
 
 # Install
 
 Run the following command in the root directory of your Node-RED install (typically ~/.node-red)
 
-    npm install node-red-contrib-rdkafka
+    npm install node-red-contrib-rdkafka-secure
 
 You may see a lot of warnings as librdkafka compiles and installs, particularily on MacOS, but it does work.
+
+**If you need SSL support on MacOS**, check out the [node-rdkafka instructions](https://github.com/Blizzard/node-rdkafka#mac-os-high-sierra--mojave) for environment variables you will need to set before running `npm install`.
 
 Start node-red as normal or with `-v` for better debugging
 
