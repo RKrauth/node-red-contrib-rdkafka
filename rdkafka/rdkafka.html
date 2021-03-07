@@ -1,6 +1,6 @@
 
 
-<script type="text/x-red" data-template-name="rdkafka in">
+<script type="text/x-red" data-template-name="rdkafka-secure in">
     <div class="form-row">
         <label for="node-input-broker"><i class="icon-tag"></i> Broker</label>
         <input type="text" id="node-input-broker">
@@ -19,35 +19,36 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="rdkafka in">
+<script type="text/x-red" data-help-name="rdkafka-secure in">
     <p>Kafka input node. Connects to a broker and subscribes to the specified topic. The topic may contain Kafka wildcard regular expression.
     </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('rdkafka in',{
-       category: 'input',
+    RED.nodes.registerType('rdkafka-secure in',{
+       category: 'network',
        defaults: {
          name: {value:""},
          topic: {value:"",required:true},
-         cgroup: {value:"node-red-rdkafka"},
+         cgroup: {value:"node-red-rdkafka-secure"},
          autocommit: {value:true, required:true},
-         broker: {type:"kafka-broker", required:true}
+         broker: {type:"kafka-broker-secure", required:true}
        },
        color:"#FFFFFF",
        inputs:0,
        outputs:1,
        icon: "kafka.png",
        label: function() {
-       return this.name||this.topic||"rdkafka";
+         return this.name||this.topic||"rdkafka-secure";
        },
        labelStyle: function() {
-       return this.name?"node_label_italic":"";
-       }
+         return this.name?"node_label_italic":"";
+       },
+       paletteLabel: "Kafka in"
     });
 
 </script>
 
-<script type="text/x-red" data-template-name="rdkafka out">
+<script type="text/x-red" data-template-name="rdkafka-secure out">
     <div class="form-row">
         <label for="node-input-broker"><i class="icon-tag"></i> Broker</label>
         <input type="text" id="node-input-broker">
@@ -70,7 +71,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="rdkafka out">
+<script type="text/x-red" data-help-name="rdkafka-secure out">
     <p>Connects to a Kafka broker and publishes messages.
     <p>If you want to publish Kafka messages in Key,Value format then either specify a static key value in the config dialog or (if blank) include a key string in the incoming <code>msg.key</code> field
     <p>The Kafka topic to which messages are published can be specified as a static topic value in the config dialog or (if blank) included as a topic string in the incoming <code>msg.topic</code> field
@@ -81,14 +82,14 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('rdkafka out',{
-       category: 'output',
+    RED.nodes.registerType('rdkafka-secure out',{
+       category: 'network',
        defaults: {
          name: {value:""},
-         topic: {value:""},
+         topic: {value:"", required: true},
          key: {value:""},
          partition: {value:-1},
-         broker: {type:"kafka-broker", required:true}
+         broker: {type:"kafka-broker-secure", required:true}
        },
        color:"#FFFFFF",
        inputs:1,
@@ -96,16 +97,17 @@
        icon: "kafka.png",
        align: "right",
        label: function() {
-       return this.name||this.topic||"rdkafka";
+         return this.name||this.topic||"rdkafka-secure";
        },
        labelStyle: function() {
-       return this.name?"node_label_italic":"";
-       }
+         return this.name?"node_label_italic":"";
+       },
+       paletteLabel: "Kafka out"
     });
 </script>
 
 
-<script type="text/x-red" data-help-name="kafka-broker">
+<script type="text/x-red" data-help-name="kafka-broker-secure">
     <dl class="message-properties">
         <dt>Broker List
             <span class="property-type">string</span>
@@ -142,7 +144,7 @@
     </dl>
 </script>
 
-<script type="text/x-red" data-template-name="kafka-broker">
+<script type="text/x-red" data-template-name="kafka-broker-secure">
     <div class="form-row node-input-broker">
         <label for="node-config-input-broker"><i class="icon-bookmark"></i> Broker List</label>
         <input class="input-append-left" type="text" id="node-config-input-broker" placeholder="localhost:9092" style="width: 40%;" >
@@ -154,7 +156,8 @@
     <div class="form-row">
         <label for="node-config-input-security_protocol">Security protocol</label>
         <select type="text" id="node-config-input-security_protocol">
-            <option value="plaintext" selected="selected">plaintext</option>
+            <option value="" selected="selected"></option>
+            <option value="plaintext">plaintext</option>
             <option value="ssl">ssl</option>
             <option value="sasl_plaintext">sasl_plaintext</option>
             <option value="sasl_ssl">sasl_ssl</option>
@@ -163,7 +166,8 @@
     <div class="form-row">
         <label for="node-config-input-sasl_mechanism">SASL mechanism</label>
         <select type="text" id="node-config-input-sasl_mechanism">
-            <option value="GSSAPI" selected="selected">GSSAPI</option>
+            <option value="" selected="selected"></option>
+            <option value="GSSAPI">GSSAPI</option>
             <option value="PLAIN">PLAIN</option>
             <option value="SCRAM-SHA-256">SCRAM-SHA-256</option>
             <option value="SCRAM-SHA-512">SCRAM-SHA-512</option>
@@ -189,13 +193,13 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('kafka-broker', {
+    RED.nodes.registerType('kafka-broker-secure', {
         category: 'config',
         defaults: {
             broker: { value:"",required:true },
             clientid: { value:"" },
-            security_protocol: { value: "plaintext", required: true },
-            sasl_mechanism: { value: "GSSAPI", required: true },
+            security_protocol: { value: "", required: false },
+            sasl_mechanism: { value: "", required: false },
             ssl_ca_location: { value: "", required: false }
         },
         credentials: {

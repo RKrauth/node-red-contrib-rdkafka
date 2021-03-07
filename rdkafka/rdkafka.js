@@ -1,19 +1,18 @@
 "use strict";
 module.exports = function(RED) {
     var Kafka = require('node-rdkafka');
-    var util = require("util");
 
     function KafkaBrokerNode(n) {
         RED.nodes.createNode(this, n);
         this.broker = n.broker;
         this.clientid = n.clientid;
-        this.security_protocol = n.security_protocol || 'plaintext';
-        this.sasl_mechanism = n.sasl_mechanism || 'GSSAPI';
+        this.security_protocol = n.security_protocol;
+        this.sasl_mechanism = n.sasl_mechanism;
         this.ssl_ca_location = n.ssl_ca_location;
 
         this.ssl_support_enabled = Kafka.features.indexOf('ssl') >= 0;
     }
-    RED.nodes.registerType("kafka-broker", KafkaBrokerNode, {
+    RED.nodes.registerType("kafka-broker-secure", KafkaBrokerNode, {
         credentials: {
             sasl_username: { type: "text" },
             sasl_password: { type: "password" }
@@ -48,15 +47,23 @@ module.exports = function(RED) {
                         'enable.auto.commit': node.autocommit,
                         'queue.buffering.max.ms': 1,
                         'fetch.min.bytes': 1,
-                        'fetch.wait.max.ms': 1,         //librkafka recommendation for low latency
+                        'fetch.wait.max.ms': 1,          //librkafka recommendation for low latency
                         'fetch.error.backoff.ms': 100,   //librkafka recommendation for low latency
-                        'api.version.request': true,
-                        'security.protocol': node.brokerConfig.security_protocol,
-                        'sasl.mechanisms': node.brokerConfig.sasl_mechanism,
-                        'sasl.username': node.brokerConfig.credentials.sasl_username,
-                        'sasl.password': node.brokerConfig.credentials.sasl_password
+                        'api.version.request': true
                     };
-                    if (node.brokerConfig.ssl_support_enabled) {
+                    if (node.brokerConfig.security_protocol) {
+                        options['security.protocol'] = node.brokerConfig.security_protocol;
+                    }
+                    if (node.brokerConfig.sasl_mechanism) {
+                        options['sasl.mechanisms'] = node.brokerConfig.sasl_mechanism;
+                    }
+                    if (node.brokerConfig.credentials.sasl_username) {
+                        options['sasl.username'] = node.brokerConfig.credentials.sasl_username;
+                    }
+                    if (node.brokerConfig.credentials.sasl_password) {
+                        options['sasl.password'] = node.brokerConfig.credentials.sasl_password;
+                    }
+                    if (node.brokerConfig.ssl_support_enabled && node.brokerConfig.ssl_ca_location) {
                         options['ssl.ca.location'] = node.brokerConfig.ssl_ca_location;
                     }
                     consumer = new Kafka.KafkaConsumer(options, {});
@@ -74,7 +81,7 @@ module.exports = function(RED) {
                             });
                             consumer.subscribe([node.topic]);
                             consumer.consume();
-                            util.log('[rdkafka] Created consumer subscription on topic = ' + node.topic);
+                            console.log('[rdkafka] Created consumer subscription on topic = ' + node.topic);
                         })
                         .on('data', function(data) {
                             // Output the actual message contents
@@ -97,7 +104,7 @@ module.exports = function(RED) {
                                 node.send(msg);
                             } catch(e) {
                                 // statements
-                                util.log('[rdkafka] error sending node message: ' +e);
+                                console.log('[rdkafka] error sending node message: ' +e);
                             }
                         })
                         .on('error', function(err) {
@@ -107,7 +114,7 @@ module.exports = function(RED) {
                         });
                 } catch(e) {
                     //util.log('[rdkafka] Error creating consumer read stream:' +e);
-                    util.log('[rdkafka] Error creating consumer connection:' +e);
+                    console.log('[rdkafka] Error creating consumer connection:' +e);
                 }
             } else {
                 node.error('missing input topic');
@@ -125,7 +132,7 @@ module.exports = function(RED) {
             consumer.disconnect();
         });
     }
-    RED.nodes.registerType("rdkafka in", RdKafkaInNode);
+    RED.nodes.registerType("rdkafka-secure in", RdKafkaInNode);
 
     function RdKafkaOutNode(n) {
         RED.nodes.createNode(this, n);
@@ -155,13 +162,21 @@ module.exports = function(RED) {
                     'queue.buffering.max.messages': 100000,
                     'queue.buffering.max.ms': 10,
                     'batch.num.messages': 1000000,
-                    'api.version.request': true,  //added to force 0.10.x style timestamps on all messages
-                    'security.protocol': node.brokerConfig.security_protocol,
-                    'sasl.mechanisms': node.brokerConfig.sasl_mechanism,
-                    'sasl.username': node.brokerConfig.credentials.sasl_username,
-                    'sasl.password': node.brokerConfig.credentials.sasl_password
+                    'api.version.request': true  //added to force 0.10.x style timestamps on all messages
                 };
-                if (node.brokerConfig.ssl_support_enabled) {
+                if (node.brokerConfig.security_protocol) {
+                    options['security.protocol'] = node.brokerConfig.security_protocol;
+                }
+                if (node.brokerConfig.sasl_mechanism) {
+                    options['sasl.mechanisms'] = node.brokerConfig.sasl_mechanism;
+                }
+                if (node.brokerConfig.credentials.sasl_username) {
+                    options['sasl.username'] = node.brokerConfig.credentials.sasl_username;
+                }
+                if (node.brokerConfig.credentials.sasl_password) {
+                    options['sasl.password'] = node.brokerConfig.credentials.sasl_password;
+                }
+                if (node.brokerConfig.ssl_support_enabled && node.brokerConfig.ssl_ca_location) {
                     options['ssl.ca.location'] = node.brokerConfig.ssl_ca_location;
                 }
                 producer = new Kafka.Producer(options);
@@ -170,7 +185,7 @@ module.exports = function(RED) {
                 producer.connect();
 
                 producer.on('ready', function() {
-                    util.log('[rdkafka] Connection to Kafka broker(s) is ready');
+                    console.log('[rdkafka] Connection to Kafka broker(s) is ready');
                     // Wait for the ready event before proceeding
                     node.status({
                         fill: "green",
@@ -237,7 +252,7 @@ module.exports = function(RED) {
                 }
 
                 if (msg === null || topic === "") {
-                    util.log("[rdkafka] ignored request to send a NULL message or NULL topic");
+                    console.log("[rdkafka] ignored request to send a NULL message or NULL topic");
                 } else {
                     producer.produce(
                       topic,                                // topic
@@ -260,7 +275,7 @@ module.exports = function(RED) {
             producer.disconnect();
         });
     }
-    RED.nodes.registerType("rdkafka out", RdKafkaOutNode);
+    RED.nodes.registerType("rdkafka-secure out", RdKafkaOutNode);
 
 
     // allow the UI to query for the features that are enabled in the rdkafka library
