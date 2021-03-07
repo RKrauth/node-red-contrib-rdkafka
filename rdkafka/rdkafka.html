@@ -185,6 +185,10 @@
         <label for="node-config-input-ssl_ca_location">SSL CA location</label>
         <input class="input-append-left" type="text" id="node-config-input-ssl_ca_location" placeholder="">
     </div>
+    <div class="form-row">
+        <label for="node-config-input-enable_ssl_certificate_verification">Enable SSL cert verification</label>
+        <input class="input-append-left" type="checkbox" id="node-config-input-enable_ssl_certificate_verification">
+    </div>
     <div id="help-rdkafka-ssl-support" class="form-tips">
         <b>Note:</b> SSL support is not enabled. For more information about what is
         required for SSL support, see the
@@ -200,7 +204,8 @@
             clientid: { value:"" },
             security_protocol: { value: "", required: false },
             sasl_mechanism: { value: "", required: false },
-            ssl_ca_location: { value: "", required: false }
+            ssl_ca_location: { value: "", required: false },
+            enable_ssl_certificate_verification: { value: true }
         },
         credentials: {
             sasl_username: { type: "text" },
@@ -216,6 +221,7 @@
                     // rdkafka has been built with SSL support
                     $("#help-rdkafka-ssl-support").hide();
                     $("#node-config-input-ssl_ca_location").prop("disabled", false);
+                    $("#node-config-input-enable_ssl_certificate_verification").prop("disabled", false);
                     $("#node-config-input-security_protocol").children('option[value="ssl"]').removeAttr("disabled");
                     $("#node-config-input-security_protocol").children('option[value="sasl_ssl"]').removeAttr("disabled");
                 }
@@ -223,6 +229,7 @@
                     // rdkafka is missing SSL support
                     $("#help-rdkafka-ssl-support").show();
                     $("#node-config-input-ssl_ca_location").val("");
+                    $("#node-config-input-enable_ssl_certificate_verification").prop("disabled", true);
                     $("#node-config-input-ssl_ca_location").prop("disabled", true);
                     $("#node-config-input-security_protocol").children('option[value="ssl"]').attr("disabled", "");
                     $("#node-config-input-security_protocol").children('option[value="sasl_ssl"]').attr("disabled", "");

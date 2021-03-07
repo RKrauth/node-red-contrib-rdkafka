@@ -9,6 +9,7 @@ module.exports = function(RED) {
         this.security_protocol = n.security_protocol;
         this.sasl_mechanism = n.sasl_mechanism;
         this.ssl_ca_location = n.ssl_ca_location;
+        this.enable_ssl_certificate_verification = n.enable_ssl_certificate_verification;
 
         this.ssl_support_enabled = Kafka.features.indexOf('ssl') >= 0;
     }
@@ -66,6 +67,12 @@ module.exports = function(RED) {
                     if (node.brokerConfig.ssl_support_enabled && node.brokerConfig.ssl_ca_location) {
                         options['ssl.ca.location'] = node.brokerConfig.ssl_ca_location;
                     }
+                    if (node.brokerConfig.ssl_support_enabled && typeof node.brokerConfig.enable_ssl_certificate_verification !== 'undefined') {
+                        options['enable.ssl.certificate.verification'] = node.brokerConfig.enable_ssl_certificate_verification;
+                    }
+                    console.log(options);
+                    console.log(node.brokerConfig);
+
                     consumer = new Kafka.KafkaConsumer(options, {});
 
                     // Setup Flowing mode
@@ -179,6 +186,10 @@ module.exports = function(RED) {
                 if (node.brokerConfig.ssl_support_enabled && node.brokerConfig.ssl_ca_location) {
                     options['ssl.ca.location'] = node.brokerConfig.ssl_ca_location;
                 }
+                if (node.brokerConfig.ssl_support_enabled && typeof node.brokerConfig.enable_ssl_certificate_verification !== 'undefined') {
+                    options['enable.ssl.certificate.verification'] = node.brokerConfig.enable_ssl_certificate_verification;
+                }
+
                 producer = new Kafka.Producer(options);
 
                 // Connect to the broker manually
