@@ -1,0 +1,159 @@
+
+
+<script type="text/x-red" data-template-name="rdkafka-secure-in">
+    <div class="form-row">
+        <label for="node-input-broker"><i class="fa fa-tag"></i> Broker</label>
+        <input type="text" id="node-input-broker">
+    </div>
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-list"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+    <div class="form-row">
+        <label for="node-input-payloadType"><i class="fa fa-bars"></i> Payload Type</label>
+        <select id="node-input-payloadType">
+            <option>String</option>
+            <option>Buffer</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-keyType"><i class="fa fa-book"></i> Key Type</label>
+        <select id="node-input-keyType">
+            <option>String</option>
+            <option>Buffer</option>
+            <option>Unchanged</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-headerType"><i class="fa fa-header"></i> Header Type</label>
+        <select id="node-input-headerType">
+            <option>String</option>
+            <option>Buffer</option>
+            <option>Unchanged</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-cgroup"><i class="fa fa-group"></i> Group ID</label>
+        <input type="text" id="node-input-cgroup" placeholder="Group ID">
+        <input type="hidden" id="node-input-cgroupType">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="rdkafka-secure-in">
+    <h2>Kafka In Node</h2>
+    <p>
+        Connects to a Kafka broker and subscribes to the specified topic(s).
+        Returns messages received from these Kafka topic(s).
+    </p>
+    <h3>Node configuration</h3>
+    <dl>
+        <dt>Broker</dt>
+        <dd>
+            The <em>Broker</em> is the Kafka broker to be used. 
+            Select from the list or add a new broker.
+        </dd>
+        <dt>topic</dt>
+        <dd>
+            The <em>topic</em> is the topic(s) to subscribe to.
+            It can be either a string (single topic) or regex-like (multiple topics).
+            For example, <code>^top.test.[0-9]+$</code> will create a subscription 
+            for topics starting with 'top.test.' followed by a number, e.g. 
+            'top.test.1', 'top.test.2', ..., 'top.test.10', ...: 
+        </dd>
+        <dt>payloadType</dt>
+        <dd>
+            The <em>payloadType<em> is the target type of the value in <code>msg.payload</code>.
+            <ul>
+                <li>'String' returns the value as string (may be empty).</li>
+                <li>'Buffer' returns the value as Buffer (may be empty).</li>
+            </ul>
+            Note that the conversion to string may lead to information loss, 
+            if the original value is binary and cannot be converted to UTF8. 
+        </dd>
+        <dt>keyType</dt>
+        <dd>
+            The <em>keyType<em> is the target type of the value in <code>msg.key</code>.
+            <ul>
+                <li>'String' returns the value as string.</li>
+                <li>'Buffer' returns the value as Buffer.</li>
+                <li>'Unchanged' returns the value as received from node-rdkafka (string or Buffer).</li>
+            </ul>
+            If the incoming Kafka message contains no key, <code>msg.key</code> will be omitted (undefined). 
+        </dd>
+        <dt>headerType</dt>
+        <dd>
+            The <em>headerType<em> is the target type of the values in <code>msg.headers</code>.
+            <ul>
+                <li>'String' returns the value as string.</li>
+                <li>'Buffer' returns the value as Buffer.</li>
+                <li>'Unchanged' returns the value as received from node-rdkafka (string of Buffer).</li>
+            </ul>
+            If headers are present in the incoming Kafka message, <code>msg.headers</code> will be an array
+            of key-value pairs with value datatype specified by headerType.
+            Otherwise, <code>msg.headers</code>will be omitted (undefined).
+        </dd>
+        <dt>Group Id</dt>
+        <dd>
+            The <em>Group ID</em> is the identifier of the Kafka consumer group.
+        </dd>
+    </dl>
+    <h3>Example message</h3>
+    <p>
+        The following example (javascript-object) shows an outgoing message 
+        for payloadType: String, keyType: String, headerType: String
+    </p>
+    <p>
+        <pre>
+        {
+            payload: 'stringValue',
+            headers: [{some: 'header1'}, {another: 'header2'}], 
+            key: 'someMessageKey',
+            timestamp: 1669052498594,
+        }
+        </pre>
+    </p>
+    <h3>Additional Information</h3>
+    <p>
+        There is a maximum number of possible Kafka In Nodes due to the way how rdkafka / node-rdkafka work.
+        This can be modified by setting environment variable <code>UV_THREADPOOL_SIZE</code> to a larger value.
+    </p>
+    </script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('rdkafka-secure-in',{
+       category: 'network',
+       defaults: {
+         name: {value:""},
+         topic: {value:"", required: true},
+         payloadType: {value:"String", required: true},
+         keyType: {value:"String", required: true},
+         headerType: {value:"String", required: true},
+         cgroup: {value:"node-red-rdkafka-secure", validate: RED.validators.typedInput('cgroupType')},
+         cgroupType: {value: 'str'},
+         autocommit: {value:true, required:true},
+         broker: {type:"rdkafka-secure-broker", required:true}
+       },
+       color:"#FFFFFF",
+       inputs:0,
+       outputs:1,
+       icon: "kafka.png",
+       paletteLabel: "Kafka in",
+       label: function() {
+         return this.name||this.topic||"rdkafka-secure-in";
+       },
+       labelStyle: function() {
+         return this.name?"node_label_italic":"";
+       },
+       oneditprepare: function() { 
+            $('#node-input-cgroup').typedInput({
+                default: 'str',
+                typeField: '#node-input-cgroupType',
+                types: ['str', 'env'],
+            });
+       }
+    });
+</script>

@@ -1,0 +1,305 @@
+[
+    {
+        "id": "888e62bff1e0ea32",
+        "type": "tab",
+        "label": "KafkaTestFlow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "84cb64b109300535",
+        "type": "inject",
+        "z": "888e62bff1e0ea32",
+        "name": "string payload",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "key",
+                "v": "testKey",
+                "vt": "str"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "headers",
+                "v": "[{\"testKey\": \"testHeader\"}, {\"testKey2\": \"testHeader2\"}]",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "test_topic",
+        "payload": "testPayload",
+        "payloadType": "str",
+        "x": 310,
+        "y": 280,
+        "wires": [
+            [
+                "08366caa9ae90dd9"
+            ]
+        ]
+    },
+    {
+        "id": "80ebb0a69f7aeea5",
+        "type": "inject",
+        "z": "888e62bff1e0ea32",
+        "name": "buffer payload",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "key",
+                "v": "[10, 20, 30]",
+                "vt": "bin"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "test_topic",
+        "payload": "[10, 20, 30]",
+        "payloadType": "bin",
+        "x": 310,
+        "y": 340,
+        "wires": [
+            [
+                "08366caa9ae90dd9"
+            ]
+        ]
+    },
+    {
+        "id": "7b54543d1ae7ed42",
+        "type": "inject",
+        "z": "888e62bff1e0ea32",
+        "name": "no topic",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "bla",
+        "payloadType": "str",
+        "x": 330,
+        "y": 400,
+        "wires": [
+            [
+                "08366caa9ae90dd9"
+            ]
+        ]
+    },
+    {
+        "id": "6903cbddf174571d",
+        "type": "inject",
+        "z": "888e62bff1e0ea32",
+        "name": "no key",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "test_topic",
+        "payload": "[10, 20, 30]",
+        "payloadType": "bin",
+        "x": 330,
+        "y": 460,
+        "wires": [
+            [
+                "08366caa9ae90dd9"
+            ]
+        ]
+    },
+    {
+        "id": "7b1bfedb04984b5b",
+        "type": "inject",
+        "z": "888e62bff1e0ea32",
+        "name": "no payload",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "test_topic",
+        "x": 320,
+        "y": 520,
+        "wires": [
+            [
+                "08366caa9ae90dd9"
+            ]
+        ]
+    },
+    {
+        "id": "08366caa9ae90dd9",
+        "type": "rdkafka-secure-out",
+        "z": "888e62bff1e0ea32",
+        "name": "",
+        "topic": "",
+        "key": "",
+        "partition": -1,
+        "broker": "a63d8e52fcdb61e1",
+        "x": 610,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "aaa9e8668b43fb02",
+        "type": "rdkafka-secure-in",
+        "z": "888e62bff1e0ea32",
+        "name": "",
+        "topic": "test_topic",
+        "payloadType": "String",
+        "keyType": "Buffer",
+        "headerType": "Buffer",
+        "cgroup": "buffer",
+        "autocommit": true,
+        "broker": "a63d8e52fcdb61e1",
+        "x": 910,
+        "y": 460,
+        "wires": [
+            [
+                "e76a1a274e813ad7"
+            ]
+        ]
+    },
+    {
+        "id": "131bb23fd6adbfd4",
+        "type": "rdkafka-secure-in",
+        "z": "888e62bff1e0ea32",
+        "name": "",
+        "topic": "test_topic",
+        "payloadType": "String",
+        "keyType": "Unchanged",
+        "headerType": "Unchanged",
+        "cgroup": "unchanged",
+        "autocommit": true,
+        "broker": "a63d8e52fcdb61e1",
+        "x": 910,
+        "y": 400,
+        "wires": [
+            [
+                "9335c0dc18ced737"
+            ]
+        ]
+    },
+    {
+        "id": "54536001f4b5a8f3",
+        "type": "rdkafka-secure-in",
+        "z": "888e62bff1e0ea32",
+        "name": "",
+        "topic": "test_topic",
+        "payloadType": "String",
+        "keyType": "String",
+        "headerType": "String",
+        "cgroup": "string",
+        "autocommit": true,
+        "broker": "a63d8e52fcdb61e1",
+        "x": 910,
+        "y": 340,
+        "wires": [
+            [
+                "59b8d57d274c39d1"
+            ]
+        ]
+    },
+    {
+        "id": "59b8d57d274c39d1",
+        "type": "debug",
+        "z": "888e62bff1e0ea32",
+        "name": "string",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1110,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "9335c0dc18ced737",
+        "type": "debug",
+        "z": "888e62bff1e0ea32",
+        "name": "unchanged",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1130,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "e76a1a274e813ad7",
+        "type": "debug",
+        "z": "888e62bff1e0ea32",
+        "name": "buffer",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1110,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "24e5bd6a208991ab",
+        "type": "comment",
+        "z": "888e62bff1e0ea32",
+        "name": "Broker configuration may be needed",
+        "info": "To run this subflow, a working Kafka Broker is required\nEdit the broker list configuration to reflect the settings in your environment.\n\nIf there is no Kafka Broker available, \nthe easiest way to set one up locally is probably via docker using the \nofficial Confluent docker image for Kafka\n\nhttps://hub.docker.com/r/confluentinc/cp-kafka\n\n",
+        "x": 780,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "a63d8e52fcdb61e1",
+        "type": "rdkafka-secure-broker",
+        "broker": "localhost:29092",
+        "clientid": "",
+        "security_protocol": "",
+        "sasl_mechanism": "",
+        "ssl_ca_location": "",
+        "enable_ssl_certificate_verification": true
+    }
+]

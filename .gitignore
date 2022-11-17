@@ -36,8 +36,9 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-rdkafka/.DS_Store
+src/.DS_Store
 
-rdkafka/icons/.DS_Store
+src/icons/.DS_Store
 
 .DS_Store
+package-lock.json

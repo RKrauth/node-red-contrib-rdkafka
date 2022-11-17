@@ -12,9 +12,10 @@ This module is a fork of Hans Jespersen's [node-red-contrib-rdkafka](https://git
 * High performance through use of librdkafka C/C++ library (see https://github.com/edenhill/librdkafka)
 * Up to date feature set from use of node-rdkafka node.js client (see https://github.com/Blizzard/node-rdkafka)
 * Tested on Linux, macOS, and Raspberry Pi / Raspbian Jessie
-* Supports dynamic topic selection via incoming msg.topic value
-* Supports dynamic partition selection via incoming msg.partition value
-* Supports event time timestamps (with Kafka 0.10+) via msg/timestamp value
+* Supports dynamic topic selection via msg.topic value
+* Supports dynamic partition selection via msg.partition or msg.key values
+* Supports dynamic headers via msg.headers
+* Supports event time timestamps (with Kafka 0.10+) via msg.timestamp value
 * Uses `auto.offset.commit` to commit consumers offsets
 * Supports providing credentials and/or certificates for making secured connections
 
@@ -24,9 +25,15 @@ Run the following command in the root directory of your Node-RED install (typica
 
     npm install node-red-contrib-rdkafka-secure
 
-You may see a lot of warnings as librdkafka compiles and installs, particularily on MacOS, but it does work.
+You may see a lot of warnings as librdkafka compiles and installs, particularly on MacOS, but it does work.
+
 
 **If you need SSL support on MacOS**, check out the [node-rdkafka instructions](https://github.com/Blizzard/node-rdkafka#mac-os-high-sierra--mojave) for environment variables you will need to set before running `npm install`.
+
+# Run 
+
+If you want to have more than 3 Kafka consumers (*Kafka In* nodes), you might need to set the environment variable 
+*UV_THREADPOOL_SIZE* to a higher value, see [rdkafka readme](https://github.com/Blizzard/node-rdkafka#standard-api-1).
 
 Start node-red as normal or with `-v` for better debugging
 
@@ -35,22 +42,22 @@ Start node-red as normal or with `-v` for better debugging
 Point your browser to http://localhost:1880
 
 You should see white rdkafka input and output nodes in the pallet on the left side of the screen.
-<ul>
-    <img src="./images/rdkafka-in.png">
-    <img src="./images/rdkafka-out.png">
-</ul>
+
+![rdkafka-secure-in](images/rdkafka-in.png)
+![rdkafka-secure-out](images/rdkafka-out.png)
+
 
 Drag either rdkafka node to the canvas and double click to configure the Kafka topic, brokers, clientID and groupID.
 
-<img src="./images/rdkafka-in-config.png">
+![kafka-in-config](images/rdkafka-in-config.png)
 
 Click on the pencil icon to the right of the broker selection box to configure a kafka broker connection if one does not already exist.
 
-<img src="./images/rdkafka-broker-config.png">
+![kafka-broker-config](images/rdkafka-broker-config.png)
 
 Publish and subscribe just as you would with the mqtt node with some small differences namely:
 <ul>
-	<li>topics should not contain "/" or "." characters
+	<li>topics should not contain "/" characters
 	<li>kafka wildcard/regex subscriptions are not yet fully tested
 	<li>ensure you have unique Group IDs configured unless you want multiple consumers to be in a Kafka consumer group
 </ul>

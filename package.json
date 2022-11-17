@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rdkafka-secure",
-  "version": "0.3.1",
+  "version": "0.3.20-unittests",
   "description": "Node-RED module for secure Apache Kafka publish/subscribe using the librdkafka C library",
   "dependencies": {
     "node-rdkafka": "^2.11.0"
@@ -13,12 +13,14 @@
   ],
   "node-red": {
     "nodes": {
-      "rdkafka": "rdkafka/rdkafka.js"
+      "rdkafka-secure-in": "src/rdkafka-secure-in.js",
+      "rdkafka-secure-out": "src/rdkafka-secure-out.js",
+      "rdkafka-secure-broker": "src/rdkafka-secure-broker.js"
     }
   },
-  "main": "rdkafka/rdkafka.js",
+  "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --testPathIgnorePatterns --forceExit --detectOpenHandles --verbose"
   },
   "repository": {
     "type": "git",
@@ -29,5 +31,23 @@
   "bugs": {
     "url": "https://github.com/hjespers/node-red-contrib-rdkafka/issues"
   },
-  "homepage": "https://github.com/dalelane/node-red-contrib-rdkafka"
+  "homepage": "https://github.com/dalelane/node-red-contrib-rdkafka",
+  "devDependencies": {
+    "jest": "^29.3.1",
+    "node-red": "^3.0.2",
+    "node-red-node-test-helper": "^0.3.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.+(ts|tsx|js)",
+      "**/?(*.)+(spec|test).+(ts|tsx|js)"
+    ],
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "html"
+    ],
+    "cacheDirectory": "./node_modules/jest/cache"
+  }
 }

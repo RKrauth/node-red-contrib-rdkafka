@@ -1,0 +1,154 @@
+<script type="text/x-red" data-template-name="rdkafka-secure-out">
+    <div class="form-row">
+        <label for="node-input-broker"><i class="fa fa-tag"></i> Broker</label>
+        <input type="text" id="node-input-broker">
+    </div>
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-list"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="Topic">
+    </div>
+    <div class="form-row">
+        <label for="node-input-key"><i class="fa fa-book"></i> Key</label>
+        <input type="text" id="node-input-key" placeholder="Key">
+        <input type="hidden" id="node-input-keyType">
+    </div>
+        <div class="form-row">
+        <label for="node-input-partition"><i class="fa fa-puzzle-piece"></i> Partition</label>
+        <input type="number" id="node-input-partition" placeholder="Partition">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="rdkafka-secure-out">
+    <h2>Kafka Out Node</h2>
+    <p>
+        Connects to a Kafka broker and publishes messages.
+    </p>
+    <h3>Configuration</h3>
+    <dl>
+        <dt>key</dt>
+        <dd>
+            The Kafka message <em>key</em> can be defined as a static value in the config dialog 
+            or included as key string or buffer in the <code>msg.key</code> field.
+            If both a value in the config dialog and <code>msg.key</code> are specified, the message value takes precedence.
+            The key may have an influence on partition selection, see below.
+        </dd>
+        <dt>topic</dt>
+        <dd>
+            The Kafka <em>topic</em> to which messages are published can be specified as a static value 
+            in the config dialog or included as a topic string in the <code>msg.topic</code> field.
+            If both a value in the config dialog and <code>msg.topic</code> are specified, the message value takes precedence.
+            The topic must be a valid Kafka topic (e.g., no empty string).
+        </dd>
+        <dt>partition</dt>
+        <dd>
+            The Kafka <em>partition</em> to which messages are published can be specified as a static value 
+            in the config dialog or included as a number in the <code>msg.partition</code> field. 
+            If no partition is specified, then the default librdkafka partitioner will be used,
+            which selects the partition depending on key / <code>msg.key</code>, if present.
+            If both a value in the config dialog and <code>msg.partition</code> are specified, the message value takes precedence.
+        </dd>
+        <dt>headers</dt>
+        <dd>
+            The Kafka <em>headers</em> to be sent can be specified in the <code>msg.headers</code> field.
+            Only single-key--single-value objects and arrays of them are supported, e.g. <code>{key: 'value'}</code> 
+            and <code>[{key1: 'value1'}, {key2: 'value2'}]</code>. 
+            The keys must be strings, the values can be strings or buffers.
+        </dd>
+        <dt>payload</dt>
+        <dd>
+            The <em>payload</em> to send should be specified in the <code>msg.payload</code> field.
+            Different payload types are processed as follows:
+            <ul>
+                <li>Buffer payloads will be sent as Buffer</li>
+                <li>String payloads will be sent as Buffer</li>
+                <li>Object payloads will be stringified and sent as Buffer</li>
+                <li>Undefined and null payloads will be sent as null</li>
+                <li>Other payload types (e.g. numeric, boolean) will be converted to string and sent as Buffer</li>
+            </ul>
+            If an object payload (except null) is used, the object must be convertible to JSON,  
+            i.e. it must not contain circular references or BigInt values.
+        </dd>
+        <dt>timestamp</dt>
+        <dd>
+            If a valid numeric timestamp is provided in <code>msg.timestamp</code> field, 
+            it will be added to the message as the event time. 
+            Otherwise, the publish time will be used.
+        </dd>
+    </dl>
+    <h3>Example message</h3>
+    <p>
+       The following message (as javascript object) could be used to send to Kafka topic 'testTopic1': 
+        <pre>
+        {
+            payload: {payload1: 'key1', payload2: 'key2', count: 2},
+            timestamp:,
+            key: 'testKey1',
+            topic: 'testTopic1',
+            headers: [{header1: 'theader1'}, {header2: 'theader2'}],
+        }
+        </pre>
+    </p>
+    <h3>Additional Information</h3>
+    <p>
+        There is a maximum number of possible Kafka Out Nodes due to the way how rdkafka / node-rdkafka work.
+        This can be modified by setting environment variable <code>UV_THREADPOOL_SIZE</code> to a larger value.
+    </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('rdkafka-secure-out',{
+       category: 'network',
+       defaults: {
+         name: {value:""},
+         topic: {value:"", required: false},
+         key: {value:"", validate: function(v) {
+            const valType = $('#node-input-keyType')?.val() ?? this.keyType ?? 'str';
+            const selector = $('#node-input-keyType').parent().find(".red-ui-typedInput-container"); //input element itself is hidden
+            if (valType === 'str') {
+                selector.removeClass('input-error');
+                return true;
+            } else if (valType === 'bin') {
+                const bufferRegex = /^\[((([\d]{1,2}|[12][0-5][0-5])|"([\d]{1,2}|[12][0-5][0-5])")[\s]*,[\s]*)*((([\d]{1,2}|[12][0-5][0-5])|"([\d]{1,2}|[12][0-5][0-5])")[\s]*)\]$/;
+                const emptyRegex = /^\[[\s]*\]$/;
+                const returnValue = bufferRegex.test(v) || emptyRegex.test(v)
+                returnValue ? selector.removeClass('input-error') : selector.addClass('input-error');
+                return returnValue;
+            } else {
+                selector.addClass('input-error');
+                return false;
+            }
+         }},
+         keyType: {value: 'str'},
+         partition: {value:-1, validate: RED.validators.number()},
+         broker: {type:"rdkafka-secure-broker", required:true}
+       },
+       color:"#FFFFFF",
+       inputs:1,
+       outputs:0,
+       icon: "kafka.png",
+       align: "right",
+       paletteLabel: "Kafka out",
+       label: function() {
+         return this.name||this.topic||"rdkafka-secure-out";
+       },
+       labelStyle: function() {
+         return this.name?"node_label_italic":"";
+       },
+       oneditprepare: function () {
+        $('#node-input-partition').typedInput({
+            type: 'num',
+            types: ['num'],
+        });
+        $('#node-input-key').typedInput({
+            default: 'str',
+            types: ['str', 'bin'],
+            typeField: '#node-input-keyType',
+        });
+       }
+    });
+    
+</script>
